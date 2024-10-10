@@ -9,7 +9,8 @@ function App() {
     <>
       <Router>
         <Routes>
-          <Route path="/:id" element={<ZoomBot />} />
+          <Route path="/" element={<Home/>}/>
+          <Route path="zoom/:id" element={<ZoomBot/>} />
         </Routes>
       </Router>
     </>
