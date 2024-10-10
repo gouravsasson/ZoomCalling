@@ -1,20 +1,22 @@
-import ZoomBot from "./assets/pages/ZoomBot"
-import { BrowserRouter as Router,Route,Routes } from "react-router-dom"
-import { Router } from './../node_modules/@remix-run/router/dist/router.d';
+import ZoomBot from "./assets/pages/ZoomBot";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useNavigate,
+} from "react-router-dom";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <>
       <Router>
         <Routes>
-          <Route path="/" element={<Home/>}/>
-          <Route path="zoom/:id" element={<ZoomBot/>} />
+          <Route path="/" element={<Home />} />
+          <Route path="zoom/:id" element={<ZoomBot />} />
         </Routes>
       </Router>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
