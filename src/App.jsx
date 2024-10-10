@@ -1,4 +1,5 @@
 import ZoomBot from "./assets/pages/ZoomBot";
+import Home from "./assets/pages/Home";
 import {
   BrowserRouter as Router,
   Routes,
