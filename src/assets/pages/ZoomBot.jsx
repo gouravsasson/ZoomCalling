@@ -56,7 +56,7 @@ const ZoomBot = () => {
   useEffect(() => {
     const connectWebSocket = () => {
       try {
-        websocketRef.current = new WebSocket(`wss://de33-103-157-7-38.ngrok-free.app/socket/zoom/${id}/`);
+        websocketRef.current = new WebSocket(`wss://f87c-103-157-7-38.ngrok-free.app/socket/zoom/${id}/`);
 
         websocketRef.current.onopen = () => {
           console.log('WebSocket Connected');
