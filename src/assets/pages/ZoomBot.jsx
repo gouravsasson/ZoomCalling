@@ -1,9 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
-import { useParams } from 'react-router-dom';
 
 const ZoomBot = () => {
-    const{id}=useParams();
   const [isConnected, setIsConnected] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [error, setError] = useState(null);
@@ -11,21 +9,22 @@ const ZoomBot = () => {
   const websocketRef = useRef(null);
   const audioChunksRef = useRef([]);
   const audioRef = useRef(new Audio());
+  let buffer = useRef(new Blob()); 
 
   const playCollectedAudio = async () => {
     try {
       if (audioChunksRef.current.length === 0) return;
 
-      // Create a blob from all collected chunks
+      
       const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
       const audioUrl = URL.createObjectURL(audioBlob);
 
-      // Clean up previous audio
+      
       if (audioRef.current.src) {
         URL.revokeObjectURL(audioRef.current.src);
       }
 
-      // Set up new audio
+      
       audioRef.current.src = audioUrl;
       setIsPlaying(true);
 
@@ -40,10 +39,10 @@ const ZoomBot = () => {
         setIsPlaying(false);
       };
 
-      // Play the audio
+      
       await audioRef.current.play();
 
-      // Clear the chunks for next stream
+      
       audioChunksRef.current = [];
 
     } catch (error) {
@@ -56,18 +55,19 @@ const ZoomBot = () => {
   useEffect(() => {
     const connectWebSocket = () => {
       try {
-        websocketRef.current = new WebSocket(`wss://f87c-103-157-7-38.ngrok-free.app/socket/zoom/${id}/`);
+        websocketRef.current = new WebSocket(`wss://67d0-103-157-7-117.ngrok-free.app/socket/zoom/29695038-8eaa-4111-a70f-d56ca04dce13/`);
 
         websocketRef.current.onopen = () => {
           console.log('WebSocket Connected');
           setIsConnected(true);
-          // Send initial message with offset 0
+          setError(null); 
           websocketRef.current.send(JSON.stringify({ offset: 0.0 }));
         };
 
         websocketRef.current.onclose = () => {
           console.log('WebSocket Disconnected');
           setIsConnected(false);
+          setTimeout(connectWebSocket, 3000); 
         };
 
         websocketRef.current.onerror = (error) => {
@@ -77,14 +77,23 @@ const ZoomBot = () => {
 
         websocketRef.current.onmessage = async (event) => {
           if (event.data instanceof Blob) {
-            // Received binary audio data
-            audioChunksRef.current.push(event.data);
+            buffer.current = new Blob([buffer.current, event.data]);
+
+            
+            while (buffer.current.size > 102400) {
+              const chunk = buffer.current.slice(0, 102400); 
+              audioChunksRef.current.push(chunk);
+              buffer.current = buffer.current.slice(102400); 
+            }
           } else {
             try {
-              // Handle text messages
               const message = JSON.parse(event.data);
-              // Check if this is the end of an audio stream
               if (message.event === "clear") {
+                
+                if (buffer.current.size > 0) {
+                  audioChunksRef.current.push(buffer.current);
+                  buffer.current = new Blob(); 
+                }
                 await playCollectedAudio();
               }
             } catch (error) {
@@ -101,7 +110,6 @@ const ZoomBot = () => {
     
     connectWebSocket();
 
-    // Cleanup function
     return () => {
       if (websocketRef.current) {
         websocketRef.current.close();
