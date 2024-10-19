@@ -1,0 +1,1 @@
+`wss://1b73-103-108-5-121.ngrok-free.app/socket/zoom/${id}/`
